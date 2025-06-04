@@ -1,0 +1,77 @@
+---
+# sudo groupadd --system prometheus
+# sudo useradd --system -s /sbin/nologin -g prometheus prometheus
+- name: Create Prometheus User and Group
+  user: prometheus
+  system: yes
+  shell: /usr/sbin/nologin
+
+# sudo mkdir -p /etc/prometheus /var/lib/prometheus
+# sudo chown prometheus:prometheus /etc/prometheus /var/lib/prometheus
+- name: Create Directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: prometheus
+    group: prometheus
+  loop:
+    - /etc/prometheus
+    - /var/lib/prometheus
+
+# wget https://github.com/prometheus/prometheus/releases/download/v3.4.1/prometheus-3.4.1.linux-amd64.tar.gz
+  - name: Download Prometheus
+    get_url:
+      url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+      dest: /tmp/prometheus.tar.gz
+      checksum: " sha256: {{ prometheus_checksum }}"
+
+# tar -xvf https://github.com/prometheus/prometheus/releases/download/v3.4.1/prometheus-3.4.1.linux-amd64.tar.gz
+  - name: Extract Prometheus
+    unarchive:
+      remote_src: yes
+      src: /tmp/prometheus.tar.gz
+      dest: /tmp
+
+# For prometheus binary
+# sudo cp /tmp/prometheus-2.47.0.linux-amd64/prometheus /usr/local/bin/prometheus
+# sudo chown prometheus:prometheus /usr/local/bin/prometheus
+# sudo chmod 755 /usr/local/bin/prometheus
+# For promtool binary
+# sudo cp /tmp/prometheus-2.47.0.linux-amd64/promtool /usr/local/bin/promtool
+# sudo chown prometheus:prometheus /usr/local/bin/promtool
+# sudo chmod 755 /usr/local/bin/promtool
+  - name: Install Prometheus Binaries
+    copy:
+     remote_src: yes
+     src: "/tmp/prometheus-{{ prometheus_version }}.linux-amd64/{{ item }}"
+     dest: /etc/local/bin/{{ item }}
+     owner: prometheus
+     group: prometheus
+     mode: 0755
+    loop:
+      - prometheus
+      - promtool
+
+  - name: Install Prometheus Config
+    template:
+    src: prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+    owner: prometheus
+    group: prometheus
+
+  - name: Install systemd service
+    template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+
+  - name: Reload systemd and start Prometheus
+    systemd:
+      name: prometheus
+      status: started
+      enabled: yes
+      daemon_reload: yes
+
+  - name: Clean up
+    file:
+    path: "/tmp/prometheus-{{ prometheus_version }}.linux-amd64"
+    state: absent

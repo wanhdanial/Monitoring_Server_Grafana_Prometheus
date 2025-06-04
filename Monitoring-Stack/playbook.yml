@@ -1,0 +1,9 @@
+---
+- name: Deploy Monitoring Stack
+  hosts: 
+  become: yes
+
+  roles:
+    - node_exporter
+    - prometheus
+    - grafana

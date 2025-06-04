@@ -1,0 +1,50 @@
+---
+- name: Add Grafana APT key
+  apt-key:
+  url: https://packages.grafana.com/gpg.key
+  state: present
+
+- name: Add Grafana repository
+  apt_repository:
+    repo: "deb https://packages.grafana.com/oss/deb stable main"
+    state: present
+    update_cache: yes
+
+- name: Install Grafana
+  apt:
+    name: grafana
+    state: present
+    update_cache: yes
+
+- name: Start and enable Grafana service
+  systemd:
+    name: grafana-server
+    state: started
+    enabled: yes
+
+- name: Wait for Grafana to be ready
+  uri:
+    url: http://localhost:3000
+    status_code: 200
+    timeout: 5
+  register: result
+  until: result.status == 200
+  retries: 10
+  delay: 5
+
+- name: Add Prometheus datasource
+  uri:
+    url: http://localhost:3000/api/datasources
+    method: POST
+    body_format: json
+    body:
+      name: "Prometheus"
+      type: "prometheus"
+      url: "http://localhost:9090"
+      access: "proxy"
+      isDefault: true
+    status_code: 200
+    force_basic_auth: yes
+    user: "admin"
+    password: "admin"
+  when: result.status == 200

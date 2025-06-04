@@ -1,0 +1,6 @@
+[monitoring]
+monitoring.server.com ansible_ssh_user=ubuntu
+
+# Variables for all hosts
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
