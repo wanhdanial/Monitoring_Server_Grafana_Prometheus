@@ -14,7 +14,11 @@
     group: prometheus
   loop:
     - /etc/prometheus
-    - /var/lib/prometheus                                                                                                                                                                                                                                   - name: Download Prometheus                                                                                                     get_url:                                                                                                                        url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+    - /var/lib/prometheus
+
+- name: Download Prometheus 
+  get_url:
+    url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
     dest: /tmp/prometheus.tar.gz
     checksum: "sha256:{{ prometheus_checksum }}"
 
