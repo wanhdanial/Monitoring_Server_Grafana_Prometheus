@@ -1,6 +1,7 @@
 ---
 - name: Deploy Monitoring Stack
-  hosts: 
+  hosts: localhost
+  connection: local
   become: yes
 
   roles:
