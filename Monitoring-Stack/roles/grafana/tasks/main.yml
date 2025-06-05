@@ -1,8 +1,9 @@
 ---
+# main.yml - Grafana installation and configuration
 - name: Add Grafana APT key
-  apt-key:
-  url: https://packages.grafana.com/gpg.key
-  state: present
+  apt_key:
+    url: https://packages.grafana.com/gpg.key
+    state: present
 
 - name: Add Grafana repository
   apt_repository:
@@ -41,10 +42,6 @@
       name: "Prometheus"
       type: "prometheus"
       url: "http://localhost:9090"
-      access: "proxy"
-      isDefault: true
-    status_code: 200
-    force_basic_auth: yes
-    user: "admin"
-    password: "admin"
-  when: result.status == 200
+    headers:
+      Content-Type: "application/json"
+
