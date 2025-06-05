@@ -1,6 +1,11 @@
 ---
 - name: Deploy Monitoring Stack
+<<<<<<< HEAD
   hosts: monitoring
+=======
+  hosts: localhost
+  connection: local
+>>>>>>> 231e94bb738ec7b6f77a7098cdf27c7eecfcd021
   become: yes
 
   roles:
