@@ -33,6 +33,7 @@
   retries: 10
   delay: 5
 
+
 - name: Add Prometheus datasource
   uri:
     url: http://localhost:3000/api/datasources
@@ -42,6 +43,7 @@
       name: "Prometheus"
       type: "prometheus"
       url: "http://localhost:9090"
+      access: "proxy"
     headers:
       Content-Type: "application/json"
-
+      Authorization: "Basic {{ 'admin:admin' | b64encode }}"

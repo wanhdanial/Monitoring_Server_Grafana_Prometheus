@@ -1,10 +1,16 @@
 ---
-- name: Create Prometheus User and Group
-  user:
+- name: Ensure Prometheus group exists
+  ansible.builtin.group:
     name: prometheus
-    system: yes
-    shell: /usr/sbin/nologin
+    state: present
+
+- name: Ensure Prometheus user exists
+  ansible.builtin.user:
+    name: prometheus
     group: prometheus
+    shell: /sbin/nologin
+    system: yes
+    create_home: no
 
 - name: Create Directories
   file:
